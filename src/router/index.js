@@ -5,6 +5,7 @@ Vue.use(Router)
 
 /* Layout */
 import Layout from '@/layout'
+import BroadbandPackageVue from '@/views/system/user/broadbandPackage.vue'
 
 /**
  * Note: 路由配置项
@@ -20,75 +21,88 @@ import Layout from '@/layout'
  * roles: ['admin', 'common']       // 访问路由的角色权限
  * permissions: ['a:a:a', 'b:b:b']  // 访问路由的菜单权限
  * meta : {
-    noCache: true                   // 如果设置为true，则不会被 <keep-alive> 缓存(默认 false)
-    title: 'title'                  // 设置该路由在侧边栏和面包屑中展示的名字
-    icon: 'svg-name'                // 设置该路由的图标，对应路径src/assets/icons/svg
-    breadcrumb: false               // 如果设置为false，则不会在breadcrumb面包屑中显示
-    activeMenu: '/system/user'      // 当路由设置了该属性，则会高亮相对应的侧边栏。
-  }
+ noCache: true                   // 如果设置为true，则不会被 <keep-alive> 缓存(默认 false)
+ title: 'title'                  // 设置该路由在侧边栏和面包屑中展示的名字
+ icon: 'svg-name'                // 设置该路由的图标，对应路径src/assets/icons/svg
+ breadcrumb: false               // 如果设置为false，则不会在breadcrumb面包屑中显示
+ activeMenu: '/system/user'      // 当路由设置了该属性，则会高亮相对应的侧边栏。
+ }
  */
 
-// 公共路由
+  // 公共路由
 export const constantRoutes = [
-  {
-    path: '/redirect',
-    component: Layout,
-    hidden: true,
-    children: [
-      {
-        path: '/redirect/:path(.*)',
-        component: () => import('@/views/redirect')
-      }
-    ]
-  },
-  {
-    path: '/login',
-    component: () => import('@/views/login'),
-    hidden: true
-  },
-  {
-    path: '/register',
-    component: () => import('@/views/register'),
-    hidden: true
-  },
-  {
-    path: '/404',
-    component: () => import('@/views/error/404'),
-    hidden: true
-  },
-  {
-    path: '/401',
-    component: () => import('@/views/error/401'),
-    hidden: true
-  },
-  {
-    path: '',
-    component: Layout,
-    redirect: 'index',
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/index'),
-        name: 'Index',
-        meta: { title: '首页', icon: 'dashboard', affix: true }
-      }
-    ]
-  },
-  {
-    path: '/user',
-    component: Layout,
-    hidden: true,
-    redirect: 'noredirect',
-    children: [
-      {
-        path: 'profile',
-        component: () => import('@/views/system/user/profile/index'),
-        name: 'Profile',
-        meta: { title: '个人中心', icon: 'user' }
-      }
-    ]
-  }
-]
+    {
+      path: '/redirect',
+      component: Layout,
+      hidden: true,
+      children: [
+        {
+          path: '/redirect/:path(.*)',
+          component: () => import('@/views/redirect')
+        }
+      ]
+    },
+    {
+      path: '/login',
+      component: () => import('@/views/login'),
+      hidden: true
+    },
+    {
+      path: '/register',
+      component: () => import('@/views/register'),
+      hidden: true
+    },
+    {
+      path: '/404',
+      component: () => import('@/views/error/404'),
+      hidden: true
+    },
+    {
+      path: '/401',
+      component: () => import('@/views/error/401'),
+      hidden: true
+    },
+    {
+      path: '',
+      component: Layout,
+      redirect: 'index',
+      children: [
+        {
+          path: 'index',
+          component: () => import('@/views/index'),
+          name: 'Index',
+          meta: { title: '首页', icon: 'dashboard', affix: true }
+        }
+      ]
+    },
+    {
+      path: '/normal',
+      component: Layout,
+      redirect: 'index',
+      children: [
+        {
+          path: 'broadbandPackage',
+          component: () => import('@/views/system/user/broadbandPackage.vue'),
+          name: 'BroadbandPackage',
+          meta: { title: '宽带套餐', icon: 'table', affix: true }
+        }
+      ]
+    },
+    {
+      path: '/user',
+      component: Layout,
+      hidden: true,
+      redirect: 'noredirect',
+      children: [
+        {
+          path: 'profile',
+          component: () => import('@/views/system/user/profile/index'),
+          name: 'Profile',
+          meta: { title: '个人中心', icon: 'user' }
+        }
+      ]
+    }
+  ]
 
 // 动态路由，基于用户权限动态去加载
 export const dynamicRoutes = [
@@ -165,8 +179,8 @@ export const dynamicRoutes = [
 ]
 
 // 防止连续点击多次路由报错
-let routerPush = Router.prototype.push;
-let routerReplace = Router.prototype.replace;
+let routerPush = Router.prototype.push
+let routerReplace = Router.prototype.replace
 // push
 Router.prototype.push = function push(location) {
   return routerPush.call(this, location).catch(err => err)
