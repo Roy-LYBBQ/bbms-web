@@ -1,6 +1,9 @@
 <script>
+import FootNav from '@/components/FootNav/footNav.vue'
+
 export default {
   name: 'broadbandPackage.Vue',
+  components: { FootNav },
   data() {
     return {
       packageList: [{
@@ -42,14 +45,27 @@ export default {
               </div>
               <div class="des">
                 <div class="title">{{ item.title }}</div>
-                <div class="info">带宽：{{ item.bandwidth }}</div>
-                <div class="info">价格：{{ item.price }}</div>
-                <div class="info">计费单位：{{ item.chargeUnit }}</div>
-                <div class="info">计费数量：{{ item.chargeNum }}</div>
+                <div class="content">
+                  <div class="info-box">
+                    <div class="info">带宽：{{ item.bandwidth }}</div>
+                    <div class="info">价格：{{ item.price }}</div>
+                    <div class="info">计费单位：{{ item.chargeUnit }}</div>
+                    <div class="info">计费数量：{{ item.chargeNum }}</div>
+                  </div>
+                  <div class="option">
+                    <el-button type="primary" plain>op1</el-button>
+                    <el-button type="info" plain>op2</el-button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
+      </el-col>
+    </el-row>
+    <el-row style="margin-top: 20px;">
+      <el-col :span="24">
+        <div class="foot"><foot-nav></foot-nav></div>
       </el-col>
     </el-row>
   </div>
@@ -65,7 +81,8 @@ $bg-color: #F8F8F8;
   background-color: $bg-color;
   min-height: inherit;
   box-shadow: 0 0 10px 0 inset #ccc;
-  padding: 20px 0;
+  padding: 20px 0 0;
+  position: relative;
 
   .content-box {
     background-color: white;
@@ -114,16 +131,38 @@ $bg-color: #F8F8F8;
             .title {
               font-size: 20px;
               border-bottom: 1px solid #ccc;
+              margin-bottom: 10px;
             }
 
-            .info {
-              font-size: 16px;
-              line-height: 28px;
+            .content {
+              display: flex;
+              justify-content: space-between;
+
+              .info-box {
+                .info {
+                  font-size: 16px;
+                  line-height: 28px;
+                }
+              }
+
+              .option {
+                margin-top: 20px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px
+              }
             }
+
           }
         }
       }
     }
   }
+
+  //.foot {
+  //  width: 100%;
+  //  position: absolute;
+  //  bottom: 0;
+  //}
 }
 </style>

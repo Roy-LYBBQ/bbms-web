@@ -89,6 +89,19 @@ export const constantRoutes = [
       ]
     },
     {
+      path: '/normal',
+      component: Layout,
+      redirect: 'index',
+      children: [
+        {
+          path: 'service',
+          component: () => import('@/views/system/user/service.vue'),
+          name: 'Service',
+          meta: { title: '宽带服务', icon: 'tree', affix: true }
+        }
+      ]
+    },
+    {
       path: '/user',
       component: Layout,
       hidden: true,
