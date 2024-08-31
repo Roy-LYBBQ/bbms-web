@@ -1,6 +1,6 @@
 <script>
 export default {
-  name: 'service',
+  name: 'workOrder',
   data() {
     return {
       tableData: [{
@@ -25,20 +25,26 @@ export default {
         des: 'xxx'
       }], multipleSelection: [],
       data: [{
-        label: '服务分类',
+        label: '工单分类',
         children: [{
-          label: '服务1'
+          label: '工单1'
         }, {
-          label: '服务2'
+          label: '工单2'
         }, {
-          label: '服务3'
+          label: '工单3'
         }]
       }],
       defaultProps: {
         children: 'children',
         label: 'label'
       },
-      searchInput: ''
+      searchInput: '',
+      gridData: [{
+        a: 'aaa',
+        b: 'bbb',
+        c: 'ccc'
+      }],
+      dialogTableVisible: false
     }
   },
 
@@ -69,7 +75,7 @@ export default {
       <div class="content">
         <div class="search">
           <el-input
-            placeholder="请输入服务名"
+            placeholder="请输入工单号"
             prefix-icon="el-icon-search"
             v-model="searchInput"
           >
@@ -91,7 +97,7 @@ export default {
             </el-table-column>
             <el-table-column
               prop="title"
-              label="服务名"
+              label="工单号"
               width="120"
             >
             </el-table-column>
@@ -106,15 +112,15 @@ export default {
             </el-table-column>
             <el-table-column
               prop="des"
-              label="详情"
-              show-overflow-tooltip
+              label="信息"
             >
             </el-table-column>
             <el-table-column
               label="操作"
-              width="150"
+              width="250"
             >
               <div style="display:flex;">
+                <el-button @click="dialogTableVisible = true" type="success" size="small">查看详情</el-button>
                 <el-button @click="handleClick(scope.row)" type="primary" size="small">op1</el-button>
                 <el-button type="danger" size="small">op2</el-button>
               </div>
@@ -135,6 +141,13 @@ export default {
         </div>
       </div>
     </div>
+    <el-dialog title="工单详情" :visible.sync="dialogTableVisible">
+      <el-table :data="gridData">
+        <el-table-column property="a" label="信息1" width="150"></el-table-column>
+        <el-table-column property="b" label="信息2" width="200"></el-table-column>
+        <el-table-column property="c" label="信息3"></el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 

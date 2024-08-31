@@ -102,6 +102,19 @@ export const constantRoutes = [
       ]
     },
     {
+      path: '/normal',
+      component: Layout,
+      redirect: 'index',
+      children: [
+        {
+          path: 'workOrder',
+          component: () => import('@/views/system/user/workOrder.vue'),
+          name: 'WorkOrder',
+          meta: { title: '工单一览', icon: 'clipboard', affix: true }
+        }
+      ]
+    },
+    {
       path: '/user',
       component: Layout,
       hidden: true,
