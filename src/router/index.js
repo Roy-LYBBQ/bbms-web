@@ -1,11 +1,7 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-
-Vue.use(Router)
-
 /* Layout */
 import Layout from '@/layout'
 import BroadbandPackageVue from '@/views/system/user/broadbandPackage.vue'
+import Router from 'vue-router'
 
 /**
  * Note: 路由配置项
