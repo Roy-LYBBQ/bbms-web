@@ -20,11 +20,10 @@
         </el-input>
       </el-form-item>
       <el-form-item style="width:100%;">
-        <el-button :loading="loading" size="medium" type="primary" style="width:100%;"
+        <el-button size="medium" type="primary" style="width:100%;"
                    @click.native.prevent="login"
         >
-          <span v-if="!loading">登 录</span>
-          <span v-else>登 录 中...</span>
+          <span >登 录</span>
         </el-button>
         <div style="display: flex; justify-content: right; gap: 20px">
           <a class="link-type" @click="changeRouter">管理端登录</a>
@@ -44,12 +43,11 @@
 <script>
 
 import { changeRouter } from '@/main'
-import { accountLogin } from '@/api/myApi/account'
-import { setExpiresIn, setToken } from '@/utils/auth'
-import data from '@/views/system/dict/data.vue'
+import { accountLogin, accountGetInfo } from '@/api/myApi/account'
 import account from '@/store/modules/account'
 import myStore from '@/store/myStore'
 import { Message } from 'element-ui'
+import myRouter from '@/router/myRouter'
 
 export default {
   name: 'myLogin',
@@ -61,7 +59,6 @@ export default {
       loginRuleList: {},
       // 校验
       loginRules: '',
-      loading: false
     }
   },
   watch: {
@@ -94,7 +91,20 @@ export default {
     this.loginRuleList = {
       account: {
         phoneNumber: [
-          { required: true, trigger: 'blur', message: '请输入您的手机号' }
+          { required: true, trigger: 'blur', message: '请输入您的手机号' },
+          {
+            validator: (rule, value, callback) => {
+              const phoneRegex = /^1[3-9]\d{9}$/; // 示例：中国大陆手机号格式
+              if (!value) {
+                callback(new Error("请输入您的手机号"));
+              } else if (!phoneRegex.test(value)) {
+                callback(new Error("请输入合法的手机号"));
+              } else {
+                callback();
+              }
+            },
+            trigger: "blur"
+          }
         ],
         password: [
           { required: true, trigger: 'blur', message: '请输入您的密码' }
@@ -118,15 +128,25 @@ export default {
         if (res) {
           if (this.curType === this.types.account) {
             accountLogin(this.loginForm).then(res => {
-              console.log(res.data)
               Message.success('登录成功')
               myStore.getters.account.mutations.setToken(res.data.access_token)
-              console.log(myStore.getters.account.getter.getToken())
+              myRouter.push('/home')
             })
           }
         }
       })
     }
+  },
+  beforeRouteLeave(to, from, next) {
+    accountGetInfo().then(res => {
+      console.log(res.data)
+      if (this.curType === this.types.account) {
+        myStore.getters.account.mutations.setId(res.data.userId)
+      } else {
+        myStore.getters.worker.mutations.setId(res.data.userId)
+      }
+      next()
+    })
   }
 }
 </script>

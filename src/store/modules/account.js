@@ -1,10 +1,14 @@
 const account = {
   state: {
+    id: '',
     token: '',
     user: {}
   },
 
   mutations: {
+    setId(id) {
+      account.state.id = id
+    },
     setToken(token) {
       account.state.token = token
     },
@@ -14,11 +18,21 @@ const account = {
   },
 
   getter: {
+    getId() {
+      return account.state.id
+    },
     getToken() {
       return account.state.token
     },
     getUser() {
       return account.state.user
+    },
+    clear() {
+      account.state = {
+        id: '',
+        token: '',
+        user: {}
+      }
     }
   }
 }

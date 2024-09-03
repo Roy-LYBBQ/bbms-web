@@ -9,7 +9,7 @@ export const constantRoutes = [
   },
   {
     path: '/register',
-    component: () => import('@/views/register'),
+    component: () => import('@/views/myView/myRegister.vue'),
     hidden: true
   },
   {
@@ -26,6 +26,25 @@ export const constantRoutes = [
     path: '',
     redirect: '/login',
     hidden: true
+  },
+  {
+    path: '/home',
+    redirect: '/combo',
+    component: () => import('@/views/myView/home.vue'),
+    children: [
+      {
+        path: '/user',
+        component: () => import('@/views/myView/userPage.vue')
+      },
+      {
+        path: '/combo',
+        component: () => import('@/views/myView/comboPage.vue')
+      },
+      {
+        path: '/service',
+        component: () => import('@/views/myView/servicePage.vue')
+      }
+    ]
   }
 ]
 

@@ -27,7 +27,8 @@ instance.interceptors.request.use(
     if (store.getter.getToken()) {
       // 3.在请求头中携带token
       config.headers.Authorization = store.getter.getToken()
-    } else if (config.url !== '/account/login' && config.url !== '/account/register' && config.url !== '/business-people/login') {
+    } else if (config.url !== '/account/login' && config.url !== '/account/register'
+      && config.url !== '/business-people/login' && !config.url.startsWith('/account/sendCode')) {
       myRouter.push('/')
       Message({ message: '请先登录', type: 'error' })
       return Promise.reject('without login')
