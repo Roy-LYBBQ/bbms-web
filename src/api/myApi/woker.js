@@ -43,8 +43,7 @@ export function workerUpdate(data) {
 export function workerGetById(id) {
   return myRequest({
     url: `${BASE_URL}/${id}`,
-    method: 'get',
-    data
+    method: 'get'
   })
 }
 
@@ -56,4 +55,20 @@ export function workerList({ userName, nodeName, name, pageSize, pageNum }) {
   })
 }
 
+export function workerOrderFinish(id) {
+  return myRequest({
+    url: `${BASE_URL}/finish/${id}`,
+    method: 'get',
+  })
+}
 
+export function workerOrderList({ serviceName, accountName, pageSize, pageNum }) {
+  const params = new URLSearchParams({
+    serviceName, accountName, pageSize, pageNum
+  })
+
+  return myRequest({
+    url: `${BASE_URL}/listOrder?${params}`,
+    method: 'get'
+  })
+}

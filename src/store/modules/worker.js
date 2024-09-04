@@ -1,8 +1,8 @@
 const worker = {
   state: {
-    token: '',
-    id: '',
-    user: {}
+    token: null,
+    id: null,
+    user: null
   },
 
   mutations: {
@@ -28,9 +28,9 @@ const worker = {
     },
     clear() {
       worker.state = {
-        token: '',
-        id: '',
-        user: {}
+        token: null,
+        id: null,
+        user: null
       }
     }
   }

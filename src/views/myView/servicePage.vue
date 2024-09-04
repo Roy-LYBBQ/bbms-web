@@ -1,11 +1,15 @@
 <script>
 import { serviceList } from '@/api/myApi/service'
+import { typeTree } from '@/api/myApi/serviceType'
+import { genOrder } from '@/api/myApi/order'
+import { Message } from 'element-ui'
 
 export default {
   name: 'servicePage',
   data() {
     return {
       total: 0,
+      dialogVisible: false,
       searchList: {
         broadbandServiceName: '',
         typeId: '',
@@ -15,27 +19,74 @@ export default {
       tableData: [{
         broadbandServiceName: '',
         typeName: ''
-      }]
+      }],
+      serviceInfos: {
+        broadbandServiceName: '',
+        typeName: ''
+      },
+      data: [{
+        id: 1,
+        label: '一级 1',
+        children: [{
+          id: 4,
+          label: '二级 1-1',
+          children: [{
+            id: 9,
+            label: '三级 1-1-1'
+          }, {
+            id: 10,
+            label: '三级 1-1-2'
+          }]
+        }]
+      }],
+      defaultProps: {
+        children: 'children',
+        label: 'label'
+      },
+      typeTree: []
     }
   },
   methods: {
     getService(data) {
       serviceList(data).then(res => {
-        console.log(res)
         this.tableData = res.rows
         this.total = res.total
       })
+    },
+    getServiceTree() {
+      typeTree().then(res => {
+        this.typeTree = res.data
+      })
+    },
+    // tree节点选择处理
+    handleNodeClick(data) {
+      this.searchList.typeId = data.id
+      this.getService(this.searchList)
+    },
+    selectService(data) {
+      let serviceId = data.broadbandServiceId
+      genOrder(serviceId).then(res => {
+        console.log(res.data)
+        Message.success('订单添加成功')
+      })
     }
+    // checkServiceInfo(row) {
+    //   this.serviceInfos.broadbandServiceName = row.broadbandServiceName
+    //   this.serviceInfos.typeName = row.typeName
+    //   this.dialogVisible = true
+    // }
   },
   created() {
     this.getService(this.searchList)
+    this.getServiceTree()
   }
 }
 </script>
 
 <template>
   <div id="container">
-    <div class="search-box box">
+    <!--搜索--none-->
+    <div style="display: none" class="search-box box">
       <el-form :inline="true" :model="searchList" class="demo-form-inline">
         <el-form-item label="服务名">
           <el-input v-model="searchList.broadbandServiceName" placeholder="填写服务名"></el-input>
@@ -51,7 +102,18 @@ export default {
         </el-form-item>
       </el-form>
     </div>
+
     <div class="main">
+      <!--tree-->
+      <div class="tree box">
+        <div style="padding: 10px; color: #aaa">服务类别</div>
+        <el-tree
+          :data="typeTree"
+          :props="defaultProps"
+          @node-click="handleNodeClick">
+        </el-tree>
+      </div>
+      <!--表格-->
       <div class="main-box box">
         <el-table
           :data="tableData"
@@ -71,25 +133,41 @@ export default {
           </el-table-column>
           <el-table-column
             label="操作"
-            width="200"
+            width="150"
           >
             <template slot-scope="scope">
-              <el-button @click="handleClick(scope.row)" type="primary" plain size="small">选择服务</el-button>
-              <el-button @click="handleClick(scope.row)" type="success" plain size="small">查看详情</el-button>
+              <el-button @click="selectService(scope.row)" type="primary" plain size="small">选择服务</el-button>
+              <!--<el-button @click="checkServiceInfo(scope.row)" type="success" plain size="small">查看详情</el-button>-->
             </template>
           </el-table-column>
         </el-table>
+        <!--分页-->
+        <div style="">
+          <el-pagination
+            background
+            layout="prev, pager, next"
+            :page-size="searchList.pageSize"
+            :total="total"
+          >
+          </el-pagination>
+        </div>
+        <el-dialog
+          title="服务详情"
+          :visible.sync="dialogVisible"
+          width="30%">
+          <div style="margin-bottom: 10px">
+            <span>服务名：{{serviceInfos.broadbandServiceName}}</span>
+          </div>
+          <div>
+            <span>服务类型：{{serviceInfos.typeName}}</span>
+          </div>
+          <span slot="footer" class="dialog-footer">
+    <el-button @click="dialogVisible = false">关 闭</el-button>
+  </span>
+        </el-dialog>
       </div>
     </div>
-    <div style="">
-      <el-pagination
-        background
-        layout="prev, pager, next"
-        :page-size="searchList.pageSize"
-        :total="total"
-      >
-      </el-pagination>
-    </div>
+
   </div>
 
 </template>
@@ -118,9 +196,13 @@ $border-line: #ededed;
   .main {
     width: 80%;
     display: flex;
-    flex-direction: column;
+
+    .tree {
+      width: 20%;
+    }
 
     .main-box {
+      width: 80%;
       padding: 20px;
       border: 1px solid #eee;
     }

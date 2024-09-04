@@ -1,8 +1,8 @@
 const account = {
   state: {
-    id: '',
-    token: '',
-    user: {}
+    id: null,
+    token: null,
+    user: null
   },
 
   mutations: {
@@ -29,9 +29,9 @@ const account = {
     },
     clear() {
       account.state = {
-        id: '',
-        token: '',
-        user: {}
+        id: null,
+        token: null,
+        user: null
       }
     }
   }

@@ -45,6 +45,20 @@ export const constantRoutes = [
         component: () => import('@/views/myView/servicePage.vue')
       }
     ]
+  },{
+    path: '/w-home',
+    redirect: '/order',
+    component: () => import('@/views/myView/home.vue'),
+    children: [
+      {
+        path: '/user',
+        component: () => import('@/views/myView/userPage.vue')
+      },
+      {
+        path: '/order',
+        component: () => import('@/views/myView/orderPage.vue')
+      }
+    ]
   }
 ]
 

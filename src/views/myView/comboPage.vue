@@ -28,8 +28,6 @@ export default {
     bookCombo(id) {
       accountAddCombo(id).then(res => {
         Message.success('订阅成功')
-      }).catch(err => {
-        Message.error(err)
       })
     }
   },
@@ -72,7 +70,7 @@ export default {
                 </div>
                 <div class="des">
                   <p class="name">套餐名称：{{ item.comboName}}</p>
-                  <p class="p">量值：{{ item.value}}</p>
+                  <p class="p">期限：{{ item.value}} {{ item.unit === 0 ? '月' : '年'}}</p>
                   <p class="p">带宽：{{ item.bandwidth}}</p>
                   <p class="p">价格：{{ item.price}} / {{ item.unit === 0 ? '月' : '年'}}</p>
                 </div>

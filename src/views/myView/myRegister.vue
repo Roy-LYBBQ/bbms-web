@@ -129,7 +129,6 @@ export default {
     register() {
       this.loginRules = this.loginRuleList.account
       this.$refs.loginForm.validate(res => {
-        alert(res)
         if (res) {
           accountRegister(this.loginForm).then(res => {
             console.log(res.data)

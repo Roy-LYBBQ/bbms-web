@@ -2,9 +2,15 @@
 import { accountGetById, accountGetInfo } from '@/api/myApi/account'
 import myStore from '@/store/myStore'
 import myRouter from '@/router/myRouter'
+import { workerGetById } from '@/api/myApi/woker'
 
 export default {
   name: 'home',
+  computed: {
+    myStore() {
+      return myStore
+    }
+  },
   data() {
     return {
       active: 'active',
@@ -26,22 +32,33 @@ export default {
       for (let i = 0; i < children.length; i++) {
         children[i].classList.remove('active')
       }
+    },
+    getUserInfo() {
+      if (myStore.getters.hasAccount()) {
+        accountGetById(myStore.getters.account.getter.getId()).then(res => {
+          if (res.data) {
+            myStore.getters.account.mutations.setUser(res.data)
+            this.userInfo = res.data
+          }
+        })
+      } else if (myStore.getters.hasWorker()) {
+        workerGetById(myStore.getters.worker.getter.getId()).then(res => {
+          console.log(myStore.getters.worker.getter.getId())
+          if (res.data) {
+            myStore.getters.worker.mutations.setUser(res.data)
+            this.userInfo = res.data
+          }
+        })
+      }
     }
   },
   created() {
-    accountGetById(myStore.getters.curId).then(res => {
-      if (res.data) {
-        if (myStore.getters.curType === 'account') {
-          myStore.getters.account.mutations.setUser(res.data)
-          this.userInfo = res.data
-        }
-        // TODO
-      }
-    })
+    this.getUserInfo()
   },
   beforeRouteUpdate(to, from, next) {
     if (to.path === '/user') {
       this.cleanActive()
+      this.getUserInfo()
     }
     next()
   }
@@ -55,14 +72,14 @@ export default {
         <div class="top-log"><img height="40px" src="@/assets/logo/logo-dark.png" alt="logo"></div>
         <div class="nav">
           <ul id="nav-ul">
-            <!--<router-link to="/home">-->
-            <!--  <li @click="handleClick">首页</li>-->
-            <!--</router-link>-->
-            <router-link to="/combo">
+            <router-link v-if="myStore.getters.hasAccount()" to="/combo">
               <li :class="active" class="li" @click="handleClick">套餐</li>
             </router-link>
-            <router-link to="/service">
+            <router-link v-if="myStore.getters.hasAccount()" to="/service">
               <li class="li" @click="handleClick">服务</li>
+            </router-link>
+            <router-link v-if="myStore.getters.hasWorker()" to="/order">
+              <li class="li" @click="handleClick">订单</li>
             </router-link>
           </ul>
         </div>
@@ -71,15 +88,18 @@ export default {
         <div class="user-info">
           <div class="avatar">
             <router-link to="/user">
-              <img width="40px" height="40px"
-                   :src="userInfo.avatar === '' ? defaultAvatar : userInfo.avatar" alt="ava"
+              <img v-if="myStore.getters.hasAccount()" width="40px" height="40px"
+                   :src="myStore.getters.account.getter.getUser().avatar === '' ? defaultAvatar : myStore.getters.account.getter.getUser().avatar" alt="ava"
+              >
+              <img v-if="myStore.getters.hasWorker()" width="40px" height="40px"
+                   :src="myStore.getters.worker.getter.getUser().avatar === '' ? defaultAvatar : myStore.getters.worker.getter.getUser().avatar" alt="ava"
               >
             </router-link>
           </div>
           <div>欢迎您，</div>
           <router-link to="user">
-            <div v-if="userInfo.username" class="nickName">
-              {{ userInfo.username }}
+            <div v-if="userInfo.userName" class="nickName">
+              {{ userInfo.userName }}
             </div>
             <div v-if="userInfo.phoneNumber" class="nickName">
               {{ userInfo.phoneNumber }}

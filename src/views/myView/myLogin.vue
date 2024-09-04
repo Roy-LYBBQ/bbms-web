@@ -23,13 +23,13 @@
         <el-button size="medium" type="primary" style="width:100%;"
                    @click.native.prevent="login"
         >
-          <span >登 录</span>
+          <span>登 录</span>
         </el-button>
         <div style="display: flex; justify-content: right; gap: 20px">
           <a class="link-type" @click="changeRouter">管理端登录</a>
           <a class="link-type" v-if="curType === types.account" @click="curType = types.worker">业务端登录</a>
           <a class="link-type" v-if="curType === types.worker" @click="curType = types.account">用户端登录</a>
-          <router-link class="link-type" :to="'/register'">立即注册</router-link>
+          <router-link v-if="curType === types.account" class="link-type" :to="'/register'">立即注册</router-link>
         </div>
       </el-form-item>
     </el-form>
@@ -48,6 +48,7 @@ import account from '@/store/modules/account'
 import myStore from '@/store/myStore'
 import { Message } from 'element-ui'
 import myRouter from '@/router/myRouter'
+import { workerGetInfo, workerLogin } from '@/api/myApi/woker'
 
 export default {
   name: 'myLogin',
@@ -58,7 +59,7 @@ export default {
       loginForm: {},
       loginRuleList: {},
       // 校验
-      loginRules: '',
+      loginRules: ''
     }
   },
   watch: {
@@ -71,7 +72,7 @@ export default {
         this.loginRules = this.loginRuleList.account
       } else if (val === this.types.worker) {
         this.loginForm = {
-          username: '卢刚',
+          username: 'admin',
           password: '20030730'
         }
         this.loginRules = this.loginRuleList.worker
@@ -94,16 +95,16 @@ export default {
           { required: true, trigger: 'blur', message: '请输入您的手机号' },
           {
             validator: (rule, value, callback) => {
-              const phoneRegex = /^1[3-9]\d{9}$/; // 示例：中国大陆手机号格式
+              const phoneRegex = /^1[3-9]\d{9}$/ // 示例：中国大陆手机号格式
               if (!value) {
-                callback(new Error("请输入您的手机号"));
+                callback(new Error('请输入您的手机号'))
               } else if (!phoneRegex.test(value)) {
-                callback(new Error("请输入合法的手机号"));
+                callback(new Error('请输入合法的手机号'))
               } else {
-                callback();
+                callback()
               }
             },
-            trigger: "blur"
+            trigger: 'blur'
           }
         ],
         password: [
@@ -128,9 +129,15 @@ export default {
         if (res) {
           if (this.curType === this.types.account) {
             accountLogin(this.loginForm).then(res => {
-              Message.success('登录成功')
+              Message.success('用户登录成功')
               myStore.getters.account.mutations.setToken(res.data.access_token)
               myRouter.push('/home')
+            })
+          } else if (this.curType === this.types.worker) {
+            workerLogin(this.loginForm).then(res => {
+              Message.success('登录成功')
+              myStore.getters.worker.mutations.setToken(res.data.access_token)
+              myRouter.push('/w-home')
             })
           }
         }
@@ -138,15 +145,23 @@ export default {
     }
   },
   beforeRouteLeave(to, from, next) {
-    accountGetInfo().then(res => {
-      console.log(res.data)
-      if (this.curType === this.types.account) {
-        myStore.getters.account.mutations.setId(res.data.userId)
-      } else {
-        myStore.getters.worker.mutations.setId(res.data.userId)
-      }
+    if (to.path === '/register') {
       next()
-    })
+    } else {
+      if (this.curType === this.types.account) {
+        accountGetInfo().then(res => {
+          console.log(res.data)
+          myStore.getters.account.mutations.setId(res.data.userId)
+          next()
+        })
+      } else if (this.curType === this.types.worker) {
+        workerGetInfo().then(res => {
+          console.log(res.data)
+          myStore.getters.worker.mutations.setId(res.data.userId)
+          next()
+        })
+      }
+    }
   }
 }
 </script>

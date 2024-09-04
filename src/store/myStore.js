@@ -13,10 +13,20 @@ const myStore = new Vuex.Store({
   getters: {
     account: () => account,
     worker: () => worker,
-    curType: () => account.getter.getToken !== '' ? 'account' : 'worker',
-    curId:() => account.getter.getToken !== '' ? account.getter.getId() : worker.getter.getId(),
-    curToken: () => account.getter.getToken !== '' ? account.getter.getToken() : worker.getter.getToken(),
-    curUser: () => account.getter.getToken !== '' ? account.getter.getUser() : worker.getter.getUser()
+    curType: () => account.getter.getToken() !== null ? 'account' : 'worker',
+    curId: () => account.getter.getToken() !== null ? account.getter.getId() : worker.getter.getId(),
+    curToken: () => account.getter.getToken() !== null ? account.getter.getToken() : worker.getter.getToken(),
+    curUser: () => account.getter.getToken() !== null ? account.getter.getUser() : worker.getter.getUser(),
+    hasAccount: function() {
+      return function() {
+        return account.getter.getToken() !== null
+      }
+    },
+    hasWorker: function() {
+      return function() {
+        return worker.getter.getToken() !== null
+      }
+    }
   }
 })
 

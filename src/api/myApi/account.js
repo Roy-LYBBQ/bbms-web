@@ -73,6 +73,13 @@ export function accountGetCombo() {
   })
 }
 
+export function accountCancelCombo() {
+  return myRequest({
+    url: `${BASE_URL}/cancelCombo`,
+    method: 'get'
+  })
+}
+
 export function accountAddCombo(id) {
   return myRequest({
     url: `${BASE_URL}/addCombo/${id}`,
@@ -85,5 +92,16 @@ export function accountAddAmount(amount) {
     url: `${BASE_URL}/addAmount`,
     method: 'post',
     data: { amount }
+  })
+}
+
+export function accountOrderList({pageSize, pageNum, serviceName, businessPeopleName}) {
+  const params = new URLSearchParams({
+    pageSize, pageNum, serviceName, businessPeopleName
+  })
+
+  return myRequest({
+    url: `${BASE_URL}/listOrder?${params}`,
+    method: 'get',
   })
 }

@@ -17,21 +17,24 @@ instance.interceptors.request.use(
   config => {
     let store = ''
     // 1.获取store
-    if (myStore.getters.curType === 'account') {
+    if (myStore.getters.hasAccount()) {
       store = myStore.getters.account
-    } else {
+    } else if (myStore.getters.hasWorker()) {
       store = myStore.getters.worker
     }
 
     // 2.判断是否有token
-    if (store.getter.getToken()) {
+    if (store !== '' && store.getter.getToken()) {
       // 3.在请求头中携带token
       config.headers.Authorization = store.getter.getToken()
-    } else if (config.url !== '/account/login' && config.url !== '/account/register'
-      && config.url !== '/business-people/login' && !config.url.startsWith('/account/sendCode')) {
+    } else if (config.url !== '/account/login'
+      && config.url !== '/account/register'
+      && config.url !== '/business-people/login'
+      && !config.url.startsWith('/account/sendCode')) {
+      console.log(config.url)
       myRouter.push('/')
       Message({ message: '请先登录', type: 'error' })
-      return Promise.reject('without login')
+      return Promise.reject('未登录')
     }
     return config
   },
@@ -48,12 +51,18 @@ instance.interceptors.response.use(
   result => {
     if (result.data.code === 200) {
       return result.data
+    } else if (result.data.code === 401) {
+      myRouter.push('/')
+      Message({ message: '请先登录', type: 'error' })
+    } else if (result.data.code === 500) {
+      if (!result.data.msg.startsWith('[404]')) {
+        Message({ message: result.data.msg, type: 'error' })
+      }
     }
     //异步的状态转化成失败的状态，同步等待调用时，则执行不到后续操作
     return Promise.reject(result.data.msg ? result.data.msg : '服务异常')
   },
   error => {
-    console.log(error)
     // 判断响应状态码是否为401，如果是则跳转到登录页面
     if (error.response.status === 401) {
       myRouter.push('/')
