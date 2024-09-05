@@ -20,3 +20,25 @@ export function orderList({ serviceName, businessPeopleName, accountName, workOr
     method: 'get'
   })
 }
+
+export function accountOrderList({pageSize, pageNum, serviceName, businessPeopleName}) {
+  const params = new URLSearchParams({
+    pageSize, pageNum, serviceName, businessPeopleName
+  })
+
+  return myRequest({
+    url: `${BASE_URL}/list/AccountOrder?${params}`,
+    method: 'get',
+  })
+}
+
+export function workerOrderList({ serviceName, accountName, pageSize, pageNum }) {
+  const params = new URLSearchParams({
+    serviceName, accountName, pageSize, pageNum
+  })
+
+  return myRequest({
+    url: `${BASE_URL}/list/BusinessPeopleOrder?${params}`,
+    method: 'get'
+  })
+}

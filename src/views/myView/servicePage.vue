@@ -69,7 +69,11 @@ export default {
         console.log(res.data)
         Message.success('订单添加成功')
       })
-    }
+    },
+    handleCurrentChange(page) {
+      this.searchList.pageNum = page
+      this.getService(this.searchList)
+    },
     // checkServiceInfo(row) {
     //   this.serviceInfos.broadbandServiceName = row.broadbandServiceName
     //   this.serviceInfos.typeName = row.typeName
@@ -148,6 +152,8 @@ export default {
             layout="prev, pager, next"
             :page-size="searchList.pageSize"
             :total="total"
+            :current-page="searchList.pageNum"
+            @current-change="handleCurrentChange"
           >
           </el-pagination>
         </div>

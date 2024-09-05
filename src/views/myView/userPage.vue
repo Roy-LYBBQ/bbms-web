@@ -5,12 +5,12 @@ import {
   accountGetById,
   accountGetCombo,
   accountCancelCombo,
-  accountOrderList
 } from '@/api/myApi/account'
 import { Message } from 'element-ui'
 import { uploadFile } from '@/api/myApi/file'
 import myRouter from '@/router/myRouter'
 import { workerGetById, workerUpdate } from '@/api/myApi/woker'
+import { accountOrderList } from '@/api/myApi/order'
 
 export default {
   name: 'userPage',
@@ -91,6 +91,10 @@ export default {
         console.log(res.rows)
       })
     },
+    handleCurrentChange(page) {
+      this.orderSearchList.pageNum = page
+      this.getOrder()
+    },
     delCombo() {
       accountCancelCombo().then(res => {
         Message.success('取消订阅成功')
@@ -128,7 +132,6 @@ export default {
     },
     uploadAvatar(file) {
       uploadFile(file).then(res => {
-        console.log(res.data.url)
         return this.updateUserAvatar(res.data.url)
       }).then(res => {
         // 更新用户信息
@@ -292,6 +295,8 @@ export default {
         status: 0
       },
       orderSearchList: {
+        serviceName:'',
+        businessPeopleName:'',
         pageSize: 3,
         pageNum: 1
       },
@@ -440,7 +445,7 @@ export default {
               :page-size="orderSearchList.pageSize"
               :total="orderList.total"
               :current-page="orderSearchList.pageNum"
-              @current-change="getOrder"
+              @current-change="handleCurrentChange"
             >
             </el-pagination>
           </div>

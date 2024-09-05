@@ -1,6 +1,7 @@
 <script>
-import { workerOrderFinish, workerOrderList } from '@/api/myApi/woker'
+import { workerOrderFinish } from '@/api/myApi/woker'
 import { Message } from 'element-ui'
+import { workerOrderList } from '@/api/myApi/order'
 
 export default {
   name: 'orderPage',
@@ -51,7 +52,11 @@ export default {
         this.getOrder(this.searchList)
         console.log(res)
       })
-    }
+    },
+    handleCurrentChange(page) {
+      this.searchList.pageNum = page
+      this.getOrder(this.searchList)
+    },
   },
   created() {
     this.getOrder(this.searchList)
@@ -114,6 +119,8 @@ export default {
         layout="prev, pager, next"
         :page-size="searchList.pageSize"
         :total="total"
+        :current-page="searchList.pageNum"
+        @current-change="handleCurrentChange"
       >
       </el-pagination>
     </div>

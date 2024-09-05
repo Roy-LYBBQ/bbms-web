@@ -1,6 +1,6 @@
 /* Layout */
 import Layout from '@/layout'
-import BroadbandPackageVue from '@/views/system/user/broadbandPackage.vue'
+import BroadbandPackageVue from '@/views/system/user/combo.vue'
 import Router from 'vue-router'
 
 /**
@@ -77,10 +77,49 @@ export const constantRoutes = [
       redirect: 'index',
       children: [
         {
-          path: 'broadbandPackage',
-          component: () => import('@/views/system/user/broadbandPackage.vue'),
-          name: 'BroadbandPackage',
+          path: 'combo',
+          component: () => import('@/views/system/user/combo.vue'),
+          name: 'Combo',
           meta: { title: '宽带套餐', icon: 'table', affix: true }
+        }
+      ]
+    },
+    {
+      path: '/normal',
+      component: Layout,
+      redirect: 'index',
+      children: [
+        {
+          path: 'account',
+          component: () => import('@/views/system/user/account.vue'),
+          name: 'Account',
+          meta: { title: '一般用户', icon: 'user', affix: true }
+        }
+      ]
+    },
+    {
+      path: '/normal',
+      component: Layout,
+      redirect: 'index',
+      children: [
+        {
+          path: 'worker',
+          component: () => import('@/views/system/user/worker.vue'),
+          name: 'Worker',
+          meta: { title: '业务人员', icon: 'peoples', affix: true }
+        }
+      ]
+    },
+    {
+      path: '/normal',
+      component: Layout,
+      redirect: 'index',
+      children: [
+        {
+          path: 'node',
+          component: () => import('@/views/system/user/node.vue'),
+          name: 'Node',
+          meta: { title: '节点管理', icon: 'online', affix: true }
         }
       ]
     },
@@ -103,10 +142,23 @@ export const constantRoutes = [
       redirect: 'index',
       children: [
         {
-          path: 'workOrder',
-          component: () => import('@/views/system/user/workOrder.vue'),
-          name: 'WorkOrder',
-          meta: { title: '工单一览', icon: 'clipboard', affix: true }
+          path: 'serviceType',
+          component: () => import('@/views/system/user/serviceType.vue'),
+          name: 'ServiceType',
+          meta: { title: '服务类型', icon: 'server', affix: true }
+        }
+      ]
+    },
+    {
+      path: '/normal',
+      component: Layout,
+      redirect: 'index',
+      children: [
+        {
+          path: 'order',
+          component: () => import('@/views/system/user/order.vue'),
+          name: 'Order',
+          meta: { title: '订单管理', icon: 'clipboard', affix: true }
         }
       ]
     },

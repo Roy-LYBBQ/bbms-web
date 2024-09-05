@@ -62,13 +62,3 @@ export function workerOrderFinish(id) {
   })
 }
 
-export function workerOrderList({ serviceName, accountName, pageSize, pageNum }) {
-  const params = new URLSearchParams({
-    serviceName, accountName, pageSize, pageNum
-  })
-
-  return myRequest({
-    url: `${BASE_URL}/listOrder?${params}`,
-    method: 'get'
-  })
-}

@@ -95,13 +95,4 @@ export function accountAddAmount(amount) {
   })
 }
 
-export function accountOrderList({pageSize, pageNum, serviceName, businessPeopleName}) {
-  const params = new URLSearchParams({
-    pageSize, pageNum, serviceName, businessPeopleName
-  })
 
-  return myRequest({
-    url: `${BASE_URL}/listOrder?${params}`,
-    method: 'get',
-  })
-}

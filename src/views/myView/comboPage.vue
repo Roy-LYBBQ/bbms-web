@@ -29,7 +29,11 @@ export default {
       accountAddCombo(id).then(res => {
         Message.success('订阅成功')
       })
-    }
+    },
+    handleCurrentChange(page) {
+      this.searchList.pageNum = page
+      this.getCombo(this.searchList)
+    },
   },
   created() {
     this.getCombo(this.searchList)
@@ -86,6 +90,8 @@ export default {
               layout="prev, pager, next"
               :page-size="searchList.pageSize"
               :total="total"
+              :current-page="searchList.pageNum"
+              @current-change="handleCurrentChange"
             >
             </el-pagination>
           </div>

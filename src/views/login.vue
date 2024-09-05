@@ -34,7 +34,7 @@
         </el-button>
         <div style="display: flex; justify-content: right; gap: 20px" v-if="register">
           <a class="link-type" @click="changeRouter">用户/业务端登录</a>
-          <router-link class="link-type" :to="'/register'">立即注册</router-link>
+          <!--<router-link class="link-type" :to="'/register'">立即注册</router-link>-->
         </div>
       </el-form-item>
     </el-form>
