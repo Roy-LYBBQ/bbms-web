@@ -321,11 +321,6 @@ export default {
               width="180"
             ></el-table-column>
             <el-table-column
-              prop="name"
-              label="姓名"
-              width="100"
-            ></el-table-column>
-            <el-table-column
               prop="email"
               label="邮箱"
               width="150"
@@ -344,6 +339,27 @@ export default {
               label="余额（元）"
               width="150"
             ></el-table-column>
+            <el-table-column
+              prop="comboName"
+              label="套餐名"
+              width="150"
+            ></el-table-column>
+            <el-table-column
+              label="套餐开始时间"
+              width="150"
+            >
+              <template slot-scope="scope">
+                <span>{{ scope.row.beginTime.substring(0, 10) }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="套餐截止时间"
+              width="150"
+            >
+              <template slot-scope="scope">
+                <span>{{ scope.row.endTime.substring(0, 10) }}</span>
+              </template>
+            </el-table-column>
             <el-table-column
               prop="longitude"
               label="经度"
