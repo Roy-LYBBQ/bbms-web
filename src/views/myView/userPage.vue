@@ -54,8 +54,6 @@ export default {
           myStore.getters.account.mutations.setUser(res.data)
           this.user = res.data
           return this.getCombo()
-        }).catch(err => {
-          Message.error(err.message || '操作失败')
         })
         // worker
       } else if (myStore.getters.hasWorker()) {
@@ -66,10 +64,7 @@ export default {
         }).then(res => {
           myStore.getters.worker.mutations.setUser(res.data)
           this.user = res.data
-          console.log('order')
           // return this.getOrder()
-        }).catch(err => {
-          Message.error(err.message || '操作失败')
         })
       }
     },
@@ -88,7 +83,6 @@ export default {
       return accountOrderList(this.orderSearchList).then(res => {
         this.orderList.rows = res.rows
         this.orderList.total = res.total
-        console.log(res.rows)
       })
     },
     handleCurrentChange(page) {
@@ -104,7 +98,6 @@ export default {
         myStore.getters.account.mutations.setUser(res.data)
         this.user = res.data
         return this.getCombo(true)
-      }).then(res => {
       })
     },
     addAmount(add) {
@@ -120,7 +113,7 @@ export default {
         }
       })
     },
-    // 处理文件上传
+    // --处理文件上传--
     triggerFileUpload() {
       this.$refs.fileInput.click()
     },
@@ -139,7 +132,6 @@ export default {
           accountGetById(myStore.getters.account.getter.getId()).then(res => {
             myStore.getters.account.mutations.setUser(res.data)
             this.user = res.data
-            console.log(res.data)
           })
           // worker
         } else if (myStore.getters.hasWorker()) {
@@ -150,7 +142,6 @@ export default {
         }
       }).catch(err => {
         this.$message.error('上传失败')
-        console.log(err)
       })
     },
     updateUserAvatar(newAvatarUrl) {
@@ -160,23 +151,22 @@ export default {
           this.$message.success('头像更新成功')
         }).catch(err => {
           this.$message.error('更新头像失败')
-          console.error(err)
         })
       } else if (myStore.getters.hasWorker()) {
         workerUpdate({ businessPeopleId: myStore.getters.worker.getter.getId(), avatar: newAvatarUrl }).then(() => {
           this.$message.success('头像更新成功')
         }).catch(err => {
           this.$message.error('更新头像失败')
-          console.error(err)
         })
       }
     },
+    //---------------
     logout() {
       // 清除登录态
       myStore.getters.account.getter.clear()
       myStore.getters.worker.getter.clear()
-      myRouter.push('/')
       Message.success('登出成功')
+      location.reload()
     }
   },
   computed: {

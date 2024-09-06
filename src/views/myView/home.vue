@@ -43,7 +43,6 @@ export default {
         })
       } else if (myStore.getters.hasWorker()) {
         workerGetById(myStore.getters.worker.getter.getId()).then(res => {
-          console.log(myStore.getters.worker.getter.getId())
           if (res.data) {
             myStore.getters.worker.mutations.setUser(res.data)
             this.userInfo = res.data

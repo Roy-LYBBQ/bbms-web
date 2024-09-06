@@ -9,6 +9,7 @@ export default {
     return {
       total: 1,
       comboList: {},
+      defaultImg: require('@/assets/images/defaultImg.webp'),
       searchList: {
         comboName: '',
         unit: '',
@@ -70,7 +71,9 @@ export default {
             <div class="combo box">
               <div style="display: flex">
                 <div class="pic">
-                  <img width="150px" height="150px" src="" alt="combo">
+                  <img width="150px" height="150px" :src="item.comboImage === null ? defaultImg : item.comboImage"
+                       alt="combo"
+                  >
                 </div>
                 <div class="des">
                   <p class="name">套餐名称：{{ item.comboName}}</p>

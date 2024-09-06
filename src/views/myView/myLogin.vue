@@ -66,8 +66,8 @@ export default {
     curType(val) {
       if (val === this.types.account) {
         this.loginForm = {
-          phoneNumber: '13364444556',
-          password: '20030730'
+          phoneNumber: '18121826200',
+          password: '1111'
         }
         this.loginRules = this.loginRuleList.account
       } else if (val === this.types.worker) {
@@ -86,8 +86,8 @@ export default {
     }
     this.curType = this.types.account
     this.loginForm = {
-      phoneNumber: '13364444556',
-      password: '20030730'
+      phoneNumber: '18121826200',
+      password: '1111'
     }
     this.loginRuleList = {
       account: {
@@ -150,7 +150,6 @@ export default {
     } else {
       if (this.curType === this.types.account) {
         accountGetInfo().then(res => {
-          console.log(res.data)
           myStore.getters.account.mutations.setId(res.data.userId)
           next()
         })
