@@ -235,6 +235,7 @@ export default {
         </el-form-item>
         <el-form-item label="节点名">
           <el-select v-model="searchList.nodeName" placeholder="请选择节点">
+            <el-option  label="无" value=""></el-option>
             <el-option v-for="item in nodeList" :label="item.nodeName" :value="item.nodeName"></el-option>
           </el-select>
         </el-form-item>
@@ -291,6 +292,11 @@ export default {
             <el-table-column
               prop="nodeName"
               label="节点名"
+              width="150"
+            ></el-table-column>
+            <el-table-column
+              prop="orderCount"
+              label="负责订单数"
               width="150"
             ></el-table-column>
             <el-table-column

@@ -11,6 +11,17 @@
     <%= webpackConfig.name %>
   </title>
   <!--[if lt IE 11]><script>window.location.href='/html/ie.html';</script><![endif]-->
+  <!--导入高德api及密钥-->
+  <script
+    type = "text/javascript" >
+    window._AMapSecurityConfig = {
+      securityJsCode: "ba907a6a43429d753ee36f22d20c388b",
+    };
+  </script>
+  <script
+    type="text/javascript"
+    src="https://webapi.amap.com/maps?v=2.0&key=518ced41c07cb4cb4cfc9408c60483e8"
+  ></script>
   <style>
     html,
     body,

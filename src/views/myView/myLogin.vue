@@ -72,8 +72,8 @@ export default {
         this.loginRules = this.loginRuleList.account
       } else if (val === this.types.worker) {
         this.loginForm = {
-          username: 'admin',
-          password: '20030730'
+          username: 'people1',
+          password: '123456'
         }
         this.loginRules = this.loginRuleList.worker
       }

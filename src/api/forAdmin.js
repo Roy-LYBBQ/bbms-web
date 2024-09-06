@@ -232,6 +232,13 @@ export function adminWorkOrderDel(id) {
   })
 }
 
+export function adminWorkOrderInfoById(id) {
+  return request({
+    url: `/workOrder//${id}`,
+    method: 'get'
+  })
+}
+
 /** 文件上传api */
 export function uploadFile(file) {
   const formData = new FormData()

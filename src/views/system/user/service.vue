@@ -216,7 +216,7 @@ export default {
                 fixed
                 prop="broadbandServiceName"
                 label="服务名"
-                width="140"
+                width="120"
               ></el-table-column>
               <el-table-column
                 prop="broadbandServiceId"

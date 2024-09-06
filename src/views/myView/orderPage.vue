@@ -1,7 +1,7 @@
 <script>
 import { workerOrderFinish } from '@/api/myApi/woker'
 import { Message } from 'element-ui'
-import { workerOrderList } from '@/api/myApi/order'
+import { orderInfoById, workerOrderList } from '@/api/myApi/order'
 
 export default {
   name: 'orderPage',
@@ -21,8 +21,13 @@ export default {
       }],
       orderInfos: {
         accountName: '',
+        longitude: '',
+        latitude: '',
         businessPeopleName: '',
+        businessPhonenumber: '',
+        businessNodeName: '',
         serviceName: '',
+        serviceTypeName: '',
         workOrderName: '',
         workOrderId: '',
         state: -1
@@ -38,13 +43,22 @@ export default {
     },
     // 查看详情
     checkOrderInfo(row) {
-      this.orderInfos.accountName = row.accountName
-      this.orderInfos.businessPeopleName = row.businessPeopleName
-      this.orderInfos.serviceName = row.serviceName
-      this.orderInfos.workOrderName = row.workOrderName
-      this.orderInfos.workOrderId = row.workOrderId
-      this.orderInfos.state = row.state
-      this.dialogVisible = true
+      // 调取订单详情接口
+      orderInfoById(row.workOrderId).then(res => {
+        this.orderInfos.accountName = row.accountName
+        this.orderInfos.businessPeopleName = row.businessPeopleName
+        this.orderInfos.serviceName = row.serviceName
+        this.orderInfos.workOrderName = row.workOrderName
+        this.orderInfos.workOrderId = row.workOrderId
+        this.orderInfos.state = row.state
+        this.orderInfos.businessPhonenumber = res.data.businessPeople.phonenumber
+        this.orderInfos.businessNodeName = res.data.businessPeople.nodeName
+        this.orderInfos.serviceTypeName = res.data.broadbandService.typeName
+        this.orderInfos.longitude = res.data.broadbandAccount.longitude
+        this.orderInfos.latitude = res.data.broadbandAccount.latitude
+        this.dialogVisible = true
+        this.openDialog()
+      })
     },
     orderFinish(data) {
       workerOrderFinish(data.workOrderId).then(res => {
@@ -57,6 +71,46 @@ export default {
       this.searchList.pageNum = page
       this.getOrder(this.searchList)
     },
+    // 打开对话框并初始化地图
+    openDialog() {
+      let lng = this.orderInfos.longitude
+      let lat = this.orderInfos.latitude
+      this.$nextTick(() => {
+        if (!this.map) {
+          // 创建地图实例
+          this.map = new AMap.Map('map-container', {
+            zoom: 13,
+            center: [lng, lat], // 默认中心点
+            resizeEnable: true
+          })
+
+          // 创建点标记
+          this.marker = new AMap.Marker({
+            map: this.map,
+            position: new AMap.LngLat(lng, lat),
+            icon: '//a.amap.com/jsapi_demos/static/demo-center/icons/poi-marker-default.png',
+            offset: new AMap.Pixel(-13, -30)
+          })
+        }
+      })
+    },
+    // 关闭对话框时清除地图和信息
+    handleClose() {
+      this.dialogVisible = false
+      this.orderInfos = {
+        accountName: '',
+        longitude: '',
+        latitude: '',
+        businessPeopleName: '',
+        businessPhonenumber: '',
+        businessNodeName: '',
+        serviceName: '',
+        serviceTypeName: '',
+        workOrderName: '',
+        workOrderId: '',
+        state: -1
+      }
+    }
   },
   created() {
     this.getOrder(this.searchList)
@@ -124,6 +178,7 @@ export default {
       >
       </el-pagination>
     </div>
+    <!--详情-->
     <el-dialog
       title="订单详情"
       :visible.sync="dialogVisible"
@@ -133,7 +188,7 @@ export default {
         <el-tag v-if="orderInfos.state === 0" type="info" size="mini">未完成</el-tag>
         <el-tag v-if="orderInfos.state === 1" type="success" size="mini">已完成</el-tag>
       </div>
-      <div style="margin-bottom: 10px">
+      <div style="margin-bottom: 10px;font-weight: bold">
         <span>订单号：{{ orderInfos.workOrderId }}</span>
       </div>
       <div style="margin-bottom: 10px">
@@ -145,12 +200,29 @@ export default {
       <div style="margin-bottom: 10px">
         <span>负责人员：{{ orderInfos.businessPeopleName }}</span>
       </div>
-      <div>
-        <span>服务类型：{{ orderInfos.serviceName }}</span>
+      <div style="margin-bottom: 10px">
+        <span>负责人员电话：{{ orderInfos.businessPhonenumber }}</span>
       </div>
+      <div style="margin-bottom: 10px">
+        <span>负责人员节点：{{ orderInfos.businessNodeName }}</span>
+      </div>
+      <div style="margin-bottom: 10px">
+        <span>服务名：{{ orderInfos.serviceName }}</span>
+      </div>
+      <div style="margin-bottom: 10px">
+        <span>服务类型名：{{ orderInfos.serviceTypeName }}</span>
+      </div>
+      <div style="margin-bottom: 10px">
+        <span>用户位置：（{{ orderInfos.longitude }}/ {{ orderInfos.latitude }}）</span>
+      </div>
+
+      <!-- 地图容器 -->
+      <div id="map-container" style="height: 300px; width: 100%; border: 1px solid #ccc"></div>
+
+
       <span slot="footer" class="dialog-footer">
-    <el-button @click="dialogVisible = false">关 闭</el-button>
-  </span>
+        <el-button @click="handleClose">关 闭</el-button>
+      </span>
     </el-dialog>
   </div>
 

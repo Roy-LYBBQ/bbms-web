@@ -4,13 +4,13 @@ import {
   accountUpdate,
   accountGetById,
   accountGetCombo,
-  accountCancelCombo,
+  accountCancelCombo
 } from '@/api/myApi/account'
 import { Message } from 'element-ui'
 import { uploadFile } from '@/api/myApi/file'
-import myRouter from '@/router/myRouter'
 import { workerGetById, workerUpdate } from '@/api/myApi/woker'
 import { accountOrderList } from '@/api/myApi/order'
+import { changeRouter } from '@/main'
 
 export default {
   name: 'userPage',
@@ -166,7 +166,80 @@ export default {
       myStore.getters.account.getter.clear()
       myStore.getters.worker.getter.clear()
       Message.success('登出成功')
+      changeRouter()
       location.reload()
+    },
+    /**
+     * 地图选点相关方法
+     */
+    // 打开对话框并初始化地图
+    openDialog() {
+      this.dialogVisible = true
+      // 默认北京天安门坐标
+      let lng = 116.39
+      let lat = 39.92
+      if (myStore.getters.account.getter.getUser().longitude) {
+        lng = myStore.getters.account.getter.getUser().longitude
+        this.tempLocation.lng = lng
+      }
+      if (myStore.getters.account.getter.getUser().latitude) {
+        lat = myStore.getters.account.getter.getUser().latitude
+        this.tempLocation.lat = lat
+      }
+      this.$nextTick(() => {
+        if (!this.map) {
+          // 创建地图实例
+          this.map = new AMap.Map('map-container', {
+            zoom: 13,
+            center: [lng, lat], // 默认中心点
+            resizeEnable: true
+          })
+
+          // 创建点标记
+          this.marker = new AMap.Marker({
+            map: this.map,
+            position: new AMap.LngLat(lng, lat),
+            icon: '//a.amap.com/jsapi_demos/static/demo-center/icons/poi-marker-default.png',
+            offset: new AMap.Pixel(-13, -30)
+          })
+
+          // 地图点击事件，更新标记位置并显示经纬度
+          this.map.on('click', this.handleMapClick)
+        } else {
+          this.map.setCenter([lng, lat])
+          this.marker.setPosition([lng, lat])
+        }
+      })
+    },
+    // 地图点击事件处理，获取点击的经纬度
+    handleMapClick(e) {
+      // 更新临时经纬度
+      this.tempLocation = {
+        lng: e.lnglat.getLng(),
+        lat: e.lnglat.getLat()
+      }
+      // 移动标记到点击位置
+      this.marker.setPosition(e.lnglat)
+      // 提示用户所选位置的经纬度
+      this.$message.success(`您选择了经纬度：${e.lnglat.getLng()}, ${e.lnglat.getLat()}`)
+    },
+    // 提交选定的位置并关闭对话框
+    submitLocation() {
+      this.location = { ...this.tempLocation }
+      this.dialogVisible = false
+      const data = {
+        accountId: myStore.getters.account.getter.getId(),
+        longitude: this.location.lng,
+        latitude: this.location.lat
+      }
+      // 更新用户信息
+      this.updateInfo(data)
+    },
+    // 关闭对话框
+    handleClose() {
+      this.dialogVisible = false
+      // 取消地图点击事件的绑定
+      // this.map.off('click', this.handleMapClick)
     }
   },
   computed: {
@@ -206,8 +279,6 @@ export default {
         userName: '',
         phoneNumber: '',//account
         phonenumber: '',//worker
-        longitude: 0,
-        latitude: 0,
         email: '',
         sex: ''
       },
@@ -243,37 +314,7 @@ export default {
             },
             trigger: 'blur'
           }
-        ],
-        longitude: [
-          { type: 'number', required: true, message: '请填写数字', trigger: 'blur' },
-          {
-            validator: (rule, value, callback) => {
-              if (!Number.isFinite(value)) {
-                callback(new Error('请输入合法的数字'))
-              } else if (value < 0 || value > 180) {
-                callback(new Error('经度范围：0-180'))
-              } else {
-                callback()
-              }
-            },
-            trigger: 'blur'
-          }
-        ],
-        latitude: [
-          { type: 'number', required: true, message: '请填写数字', trigger: 'blur' },
-          {
-            validator: (rule, value, callback) => {
-              if (!Number.isFinite(value)) {
-                callback(new Error('请输入合法的数字'))
-              } else if (value < 0 || value > 90) {
-                callback(new Error('纬度范围0-90'))
-              } else {
-                callback()
-              }
-            },
-            trigger: 'blur'
-          }
-        ],
+        ]
       },
       comboList: {
         comboId: '',
@@ -285,15 +326,23 @@ export default {
         status: 0
       },
       orderSearchList: {
-        serviceName:'',
-        businessPeopleName:'',
+        serviceName: '',
+        businessPeopleName: '',
         pageSize: 3,
         pageNum: 1
       },
-      orderList:{
+      orderList: {
         total: 0,
         rows: []
-      }
+      },
+      /**
+       * 地图选点相关
+       */
+      dialogVisible: false, // 控制对话框显示
+      map: null, // 高德地图实例
+      marker: null, // 地图标记
+      tempLocation: { lng: null, lat: null }, // 临时保存经纬度
+      location: null // 选定的经纬度
     }
   },
   created() {
@@ -312,6 +361,28 @@ export default {
 <template>
   <div id="container">
     <div style="width: 0">
+      <!-- 地图选择对话框 -->
+      <el-dialog title="选择经纬度" :visible.sync="dialogVisible" width="50%" @close="handleClose">
+        <!-- 地图容器 -->
+        <div id="map-container" style="height: 400px; width: 100%"></div>
+
+        <!-- 显示选定的经纬度 -->
+        <el-form :model="tempLocation" label-width="100px" style="margin-top: 20px;">
+          <el-form-item label="经度">
+            <el-input v-model="tempLocation.lng" readonly></el-input>
+          </el-form-item>
+          <el-form-item label="纬度">
+            <el-input v-model="tempLocation.lat" readonly></el-input>
+          </el-form-item>
+        </el-form>
+
+        <!-- 对话框底部的按钮 -->
+        <span slot="footer" class="dialog-footer">
+        <el-button @click="handleClose">取消</el-button>
+        <el-button type="primary" @click="submitLocation">确认</el-button>
+      </span>
+      </el-dialog>
+
       <!--添加余额-->
       <el-dialog title="添加余额" :visible.sync="addFormVisible">
         <el-form ref="addForm" :model="addForm" :rules="addFormRules">
@@ -331,16 +402,6 @@ export default {
           <!--account-->
           <el-form-item v-if="myStore.getters.hasAccount()" label="手机号" label-width="120px">
             <el-input disabled v-model="dialogForm.phoneNumber"
-                      autocomplete="off"
-            ></el-input>
-          </el-form-item>
-          <el-form-item v-if="myStore.getters.hasAccount()" prop="longitude" label="经度" label-width="120px">
-            <el-input v-model.number="dialogForm.longitude"
-                      autocomplete="off"
-            ></el-input>
-          </el-form-item>
-          <el-form-item v-if="myStore.getters.hasAccount()" prop="latitude" label="纬度" label-width="120px">
-            <el-input v-model.number="dialogForm.latitude"
                       autocomplete="off"
             ></el-input>
           </el-form-item>
@@ -405,14 +466,17 @@ export default {
         <div v-if="myStore.getters.hasAccount()" class="combo box">
           <div class="my-combo">我的套餐</div>
           <div class="combo-name">{{ comboList.comboName }}
-            <el-button v-if="comboList.status === '0'" type="warning" size="mini" plain @click="delCombo">取消订阅</el-button>
             <el-tag v-if="comboList.status === '1'" type="primary" size="mini" plain>已订阅</el-tag>
+            <el-button style="margin-left: 10px" v-if="comboList.status === '1'" type="warning" size="mini" plain
+                       @click="delCombo"
+            >取消订阅
+            </el-button>
             <el-tag v-if="comboList.status === '2'" type="danger" size="mini" plain>已欠费</el-tag>
             <el-tag v-if="comboList.status === '3'" type="info" size="mini" plain>已取消订阅</el-tag>
           </div>
           <div class="combo-info">
             <div class="info">期限：{{ comboList.value }} {{ comboList.unit === 0 ? '月' : '年' }}</div>
-            <div class="info">带宽：{{ comboList.bandwidth}}</div>
+            <div class="info">带宽：{{ comboList.bandwidth }}</div>
             <div class="info">价格：{{ comboList.price }} / {{ comboList.unit === 0 ? '月' : '年' }}</div>
           </div>
         </div>
@@ -459,6 +523,9 @@ export default {
         <p v-if="myStore.getters.hasAccount()" class="p">纬度：{{
             user.latitude === null ? defaultInfo : user.latitude
           }}</p>
+        <div v-if="myStore.getters.hasAccount()" style="margin: 0 10px;padding-bottom: 10px">
+          <el-button @click="openDialog" size="mini">修改经纬度</el-button>
+        </div>
       </div>
     </div>
   </div>

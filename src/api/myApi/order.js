@@ -21,14 +21,22 @@ export function orderList({ serviceName, businessPeopleName, accountName, workOr
   })
 }
 
-export function accountOrderList({pageSize, pageNum, serviceName, businessPeopleName}) {
+// 查看订单详情
+export function orderInfoById(id) {
+  return myRequest({
+    url: `${BASE_URL}/${id}`,
+    method: 'get'
+  })
+}
+
+export function accountOrderList({ pageSize, pageNum, serviceName, businessPeopleName }) {
   const params = new URLSearchParams({
     pageSize, pageNum, serviceName, businessPeopleName
   })
 
   return myRequest({
     url: `${BASE_URL}/list/AccountOrder?${params}`,
-    method: 'get',
+    method: 'get'
   })
 }
 

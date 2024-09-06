@@ -187,7 +187,7 @@ export default {
                 <el-button @click="showAdd(scope.row)" type="warning" plain
                            size="small"
                 >
-                  增加子节点
+                  增加子服务
                 </el-button>
                 <el-button @click="delServiceType(scope.row.id)" type="danger" plain
                            size="small"

@@ -3,6 +3,7 @@ import { serviceList } from '@/api/myApi/service'
 import { typeTree } from '@/api/myApi/serviceType'
 import { genOrder } from '@/api/myApi/order'
 import { Message } from 'element-ui'
+import myStore from '@/store/myStore'
 
 export default {
   name: 'servicePage',
@@ -10,6 +11,7 @@ export default {
     return {
       total: 0,
       dialogVisible: false,
+      confirmVisible: false,
       searchList: {
         broadbandServiceName: '',
         typeId: '',
@@ -43,7 +45,13 @@ export default {
         children: 'children',
         label: 'label'
       },
-      typeTree: []
+      typeTree: [],
+      // 确认状态
+      confirmState: {
+        ture: true,
+        false: false,
+        data: {}
+      }
     }
   },
   methods: {
@@ -63,17 +71,23 @@ export default {
       this.searchList.typeId = data.id
       this.getService(this.searchList)
     },
-    selectService(data) {
-      let serviceId = data.broadbandServiceId
+    // 确认选择服务
+    confirmTrue() {
+      let serviceId = this.confirmState.data.broadbandServiceId
       genOrder(serviceId).then(res => {
-        console.log(res.data)
         Message.success('订单添加成功')
+        this.confirmVisible = false
+        this.confirmState.data = {}
       })
+    },
+    selectService(data) {
+      this.confirmVisible = true
+      this.confirmState.data = data
     },
     handleCurrentChange(page) {
       this.searchList.pageNum = page
       this.getService(this.searchList)
-    },
+    }
     // checkServiceInfo(row) {
     //   this.serviceInfos.broadbandServiceName = row.broadbandServiceName
     //   this.serviceInfos.typeName = row.typeName
@@ -114,7 +128,8 @@ export default {
         <el-tree
           :data="typeTree"
           :props="defaultProps"
-          @node-click="handleNodeClick">
+          @node-click="handleNodeClick"
+        >
         </el-tree>
       </div>
       <!--表格-->
@@ -160,16 +175,26 @@ export default {
         <el-dialog
           title="服务详情"
           :visible.sync="dialogVisible"
-          width="30%">
+          width="30%"
+        >
           <div style="margin-bottom: 10px">
-            <span>服务名：{{serviceInfos.broadbandServiceName}}</span>
+            <span>服务名：{{ serviceInfos.broadbandServiceName }}</span>
           </div>
           <div>
-            <span>服务类型：{{serviceInfos.typeName}}</span>
+            <span>服务类型：{{ serviceInfos.typeName }}</span>
           </div>
-          <span slot="footer" class="dialog-footer">
-    <el-button @click="dialogVisible = false">关 闭</el-button>
-  </span>
+          <span slot="footer" class="dialog-footer"><el-button @click="dialogVisible = false">关 闭</el-button></span>
+        </el-dialog>
+        <el-dialog
+          title="选择服务"
+          :visible.sync="confirmVisible"
+          width="30%"
+        >
+          <div>
+            <span>确认选择当前服务，并创建订单吗？</span>
+          </div>
+          <span slot="footer" class="dialog-footer" style="margin-right: 10px"><el-button @click="confirmTrue" type="success" plain>确 认</el-button></span>
+          <span slot="footer" class="dialog-footer"><el-button @click="confirmVisible = false" type="primary" plain>取 消</el-button></span>
         </el-dialog>
       </div>
     </div>

@@ -38,7 +38,7 @@ export default {
           { required: true, trigger: 'blur', message: '请设置密码' }
         ]
       },
-      updateList: { accountId: '', amount: 0, email: '', sex: '', status: '', latitude: 0, longitude: 0 },
+      updateList: { accountId: '', amount: 0, email: '', sex: '', status: '' },
       updateVisible: false,
       updateRules: {
         amount: [
@@ -67,37 +67,16 @@ export default {
             trigger: 'blur'
           }
         ],
-        longitude: [
-          { required: true, message: '请填写经度', trigger: 'blur' },
-          {
-            validator: (rule, value, callback) => {
-              if (!Number.isFinite(value)) {
-                callback(new Error('请输入合法的数字'))
-              } else if (value < 0 || value > 180) {
-                callback(new Error('经度范围：0-180'))
-              } else {
-                callback()
-              }
-            },
-            trigger: 'blur'
-          }
-        ],
-        latitude: [
-          { required: true, message: '请填写纬度', trigger: 'blur' },
-          {
-            validator: (rule, value, callback) => {
-              if (!Number.isFinite(value)) {
-                callback(new Error('请输入合法的数字'))
-              } else if (value < 0 || value > 90) {
-                callback(new Error('纬度范围0-90'))
-              } else {
-                callback()
-              }
-            },
-            trigger: 'blur'
-          }
-        ]
-      }
+      },
+      /**
+       * 地图选点相关
+       */
+      dialogVisible: false, // 控制对话框显示
+      map: null, // 高德地图实例
+      marker: null, // 地图标记
+      tempLocation: { lng: null, lat: null }, // 临时保存经纬度
+      location: null, // 选定的经纬度
+      curAccountId: ''// 当前选中用户id
     }
   },
   methods: {
@@ -173,6 +152,75 @@ export default {
     handleCurrentChange(page) {
       this.searchList.pageNum = page
       this.getAccount(this.searchList)
+    },
+
+    /**
+     * 地图选点相关方法
+     */
+    // 打开对话框并初始化地图
+    openDialog(item) {
+      this.curAccountId = item.accountId
+      this.tempLocation.lng = item.longitude
+      this.tempLocation.lat = item.latitude
+      this.dialogVisible = true
+      this.$nextTick(() => {
+        if (!this.map) {
+          // 创建地图实例
+          this.map = new AMap.Map('map-container', {
+            zoom: 13,
+            center: [item.longitude, item.latitude], // 默认中心点
+            resizeEnable: true
+          })
+
+          // 创建点标记
+          this.marker = new AMap.Marker({
+            map: this.map,
+            position: new AMap.LngLat(item.longitude, item.latitude),
+            icon: '//a.amap.com/jsapi_demos/static/demo-center/icons/poi-marker-default.png',
+            offset: new AMap.Pixel(-13, -30)
+          })
+
+          // 地图点击事件，更新标记位置并显示经纬度
+          this.map.on('click', this.handleMapClick)
+        } else {
+          this.map.setCenter([item.longitude, item.latitude])
+          this.marker.setPosition([item.longitude, item.latitude])
+        }
+      })
+    },
+    // 地图点击事件处理，获取点击的经纬度
+    handleMapClick(e) {
+      // 更新临时经纬度
+      this.tempLocation = {
+        lng: e.lnglat.getLng(),
+        lat: e.lnglat.getLat()
+      }
+      // 移动标记到点击位置
+      this.marker.setPosition(e.lnglat)
+      // 提示用户所选位置的经纬度
+      this.$message.success(`您选择了经纬度：${e.lnglat.getLng()}, ${e.lnglat.getLat()}`)
+    },
+    // 提交选定的位置并关闭对话框
+    submitLocation() {
+      this.location = { ...this.tempLocation }
+      this.dialogVisible = false
+      const data = {
+        accountId: this.curAccountId,
+        longitude: this.location.lng,
+        latitude: this.location.lat
+      }
+      // 更新用户信息
+      adminAccountUpdate(data).then(res => {
+        Message.success(`修改${this.name}信息成功`)
+        return this.getAccount(this.searchList)
+      })
+    },
+    // 关闭对话框时清除状态
+    handleClose() {
+      this.dialogVisible = false
+      this.curAccountId = ''
+      // 取消地图点击事件的绑定
+      // this.map.off('click', this.handleMapClick)
     }
   },
   created() {
@@ -183,33 +231,29 @@ export default {
 
 <template>
   <div id="container">
-    <!--addForm-->
-    <!--<el-dialog title="新增用户" :visible.sync="addVisible">-->
-    <!--  <el-form ref="add" :rules="addRules" :model="addList">-->
-    <!--    <el-form-item label="用户名称" label-width="120px" prop="accountName">-->
-    <!--      <el-input v-model="addList.accountName" autocomplete="off"></el-input>-->
-    <!--    </el-form-item>-->
-    <!--    <el-form-item label="期限单位" label-width="120px" prop="unit">-->
-    <!--      <el-select v-model="addList.unit" placeholder="请选择期限单位">-->
-    <!--        <el-option label="月" value="0"></el-option>-->
-    <!--        <el-option label="年" value="1"></el-option>-->
-    <!--      </el-select>-->
-    <!--    </el-form-item>-->
-    <!--    <el-form-item label="期限数" label-width="120px" prop="value">-->
-    <!--      <el-input v-model.number="addList.value" autocomplete="off"></el-input>-->
-    <!--    </el-form-item>-->
-    <!--    <el-form-item label="价格" label-width="120px" prop="price">-->
-    <!--      <el-input v-model="addList.price" autocomplete="off"></el-input>-->
-    <!--    </el-form-item>-->
-    <!--    <el-form-item label="带宽" label-width="120px" prop="bandwidth">-->
-    <!--      <el-input v-model.number="addList.bandwidth" autocomplete="off"></el-input>-->
-    <!--    </el-form-item>-->
-    <!--  </el-form>-->
-    <!--  <div slot="footer" class="dialog-footer">-->
-    <!--    <el-button @click="addVisible = false">取 消</el-button>-->
-    <!--    <el-button type="primary" @click="addAccount(addList)">确 定</el-button>-->
-    <!--  </div>-->
-    <!--</el-dialog>-->
+
+    <!--地图定点对话框-->
+    <el-dialog title="选择经纬度" :visible.sync="dialogVisible" width="60%" @close="handleClose">
+      <!-- 地图容器 -->
+      <div id="map-container" style="height: 500px; width: 100%"></div>
+
+      <!-- 显示选定的经纬度 -->
+      <el-form :model="tempLocation" label-width="100px" style="margin-top: 20px;">
+        <el-form-item label="经度">
+          <el-input v-model="tempLocation.lng" readonly></el-input>
+        </el-form-item>
+        <el-form-item label="纬度">
+          <el-input v-model="tempLocation.lat" readonly></el-input>
+        </el-form-item>
+      </el-form>
+
+      <!-- 对话框底部的按钮 -->
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="handleClose">取消</el-button>
+        <el-button type="primary" @click="submitLocation">确认</el-button>
+      </span>
+    </el-dialog>
+
     <!--updateForm-->
     <el-dialog title="修改用户" :visible.sync="updateVisible">
       <el-form ref="update" :rules="updateRules" :model="updateList">
@@ -218,12 +262,6 @@ export default {
         </el-form-item>
         <el-form-item label="邮箱" label-width="120px" prop="email">
           <el-input v-model="updateList.email" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="经度" label-width="120px" prop="longitude">
-          <el-input v-model.number="updateList.longitude" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="纬度" label-width="120px" prop="latitude">
-          <el-input v-model.number="updateList.latitude" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="性别" label-width="120px" prop="sex">
           <el-select v-model="updateList.sex" placeholder="请选择性别">
@@ -330,13 +368,18 @@ export default {
             <el-table-column
               fixed="right"
               label="操作"
-              width="200"
+              width="300"
             >
               <template slot-scope="scope">
                 <el-button @click="showUpdate(scope.row)" type="primary" plain
                            size="small"
                 >
                   修改{{ name }}
+                </el-button>
+                <el-button @click="openDialog(scope.row)" type="success" plain
+                           size="small"
+                >
+                  修改定位
                 </el-button>
                 <el-button @click="delAccount(scope.row.accountId)" type="danger" plain
                            size="small"

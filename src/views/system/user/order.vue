@@ -1,5 +1,5 @@
 <script>
-import { adminWorkOrderDel, adminWorkOrderList } from '@/api/forAdmin'
+import { adminWorkOrderDel, adminWorkOrderInfoById, adminWorkOrderList } from '@/api/forAdmin'
 import { Message } from 'element-ui'
 
 export default {
@@ -16,81 +16,21 @@ export default {
         workOrderName: '',
         pageSize: 5,
         pageNum: 1
-      }
-      // addList: { workOrderName: '', longitude: 0, latitude: 0 },
-      // addVisible: false,
-      // addRules: {
-      //   workOrderName: [
-      //     { required: true, message: '请填写用户名', trigger: 'blur' }
-      //   ],
-      //   longitude: [
-      //     { required: true, message: '请填写经度', trigger: 'blur' },
-      //     {
-      //       validator: (rule, value, callback) => {
-      //         if (!Number.isFinite(value)) {
-      //           callback(new Error('请输入合法的数字'))
-      //         } else if (value < 0 || value > 180) {
-      //           callback(new Error('经度范围：0-180'))
-      //         } else {
-      //           callback()
-      //         }
-      //       },
-      //       trigger: 'blur'
-      //     }
-      //   ],
-      //   latitude: [
-      //     { required: true, message: '请填写纬度', trigger: 'blur' },
-      //     {
-      //       validator: (rule, value, callback) => {
-      //         if (!Number.isFinite(value)) {
-      //           callback(new Error('请输入合法的数字'))
-      //         } else if (value < 0 || value > 90) {
-      //           callback(new Error('纬度范围0-90'))
-      //         } else {
-      //           callback()
-      //         }
-      //       },
-      //       trigger: 'blur'
-      //     }
-      //   ]
-      // },
-      // updateList: { workOrderId: '', workOrderName: '', longitude: 0, latitude: 0 },
-      // updateVisible: false,
-      // updateRules: {
-      //   workOrderName: [
-      //     { required: true, message: '请填写用户名', trigger: 'blur' }
-      //   ],
-      //   longitude: [
-      //     { required: true, message: '请填写经度', trigger: 'blur' },
-      //     {
-      //       validator: (rule, value, callback) => {
-      //         if (!Number.isFinite(value)) {
-      //           callback(new Error('请输入合法的数字'))
-      //         } else if (value < 0 || value > 180) {
-      //           callback(new Error('经度范围：0-180'))
-      //         } else {
-      //           callback()
-      //         }
-      //       },
-      //       trigger: 'blur'
-      //     }
-      //   ],
-      //   latitude: [
-      //     { required: true, message: '请填写纬度', trigger: 'blur' },
-      //     {
-      //       validator: (rule, value, callback) => {
-      //         if (!Number.isFinite(value)) {
-      //           callback(new Error('请输入合法的数字'))
-      //         } else if (value < 0 || value > 90) {
-      //           callback(new Error('纬度范围0-90'))
-      //         } else {
-      //           callback()
-      //         }
-      //       },
-      //       trigger: 'blur'
-      //     }
-      //   ]
-      // }
+      },
+      orderInfos: {
+        workOrder:{},
+        broadbandAccount:{},
+        businessPeople:{},
+        broadbandService:{}
+      },
+      /**
+       * 地图选点相关
+       */
+      dialogVisible: false, // 控制对话框显示
+      map: null, // 高德地图实例
+      marker: null, // 地图标记
+      tempLocation: { lng: null, lat: null }, // 临时保存经纬度
+      location: null // 选定的经纬度
     }
   },
   methods: {
@@ -101,42 +41,6 @@ export default {
       })
     },
 
-    // showAdd() {
-    //   this.addVisible = true
-    //   // 重置表单
-    //   this.resetAddList()
-    // },
-
-    // showUpdate(item) {
-    //   this.updateVisible = true
-    //   // 重置表单
-    //   this.resetUpdateList()
-    //   // 赋本项值
-    //   this.updateList = {
-    //     workOrderId: item.workOrderId, workOrderName: item.workOrderName, longitude: item.longitude, latitude: item.latitude
-    //   }
-    // },
-
-    // resetAddList() {
-    //   this.addList = { workOrderName: '', longitude: null, latitude: null }
-    // },
-    //
-    // resetUpdateList() {
-    //   this.updateList = { workOrderId: '', workOrderName: '', longitude: null, latitude: null }
-    // },
-
-    // updateWorkOrder(data) {
-    //   this.$refs.update.validate(res => {
-    //     if (res) {
-    //       adminWorkOrderUpdate(data).then(res => {
-    //         Message.success(`修改${this.name}成功`)
-    //         this.updateVisible = false
-    //         return this.getWorkOrder(this.searchList)
-    //       })
-    //     }
-    //   })
-    // },
-
     delWorkOrder(id) {
       adminWorkOrderDel(id).then(res => {
         Message.success(`删除${this.name}成功`)
@@ -144,22 +48,56 @@ export default {
       })
     },
 
-    // addWorkOrder(data) {
-    //   this.$refs.add.validate(res => {
-    //     if (res) {
-    //       adminWorkOrderAdd(data).then(res => {
-    //         Message.success(`添加${this.name}成功`)
-    //         this.addVisible = false
-    //         return this.getWorkOrder(this.searchList)
-    //       })
-    //     }
-    //   })
-    // },
-
     // 页数变动
     handleCurrentChange(page) {
       this.searchList.pageNum = page
       this.getWorkOrder(this.searchList)
+    },
+
+    // 查看详情（调用详情接口+高德api）
+    checkInfo(item) {
+      // 调用订单详情接口
+      adminWorkOrderInfoById(item.workOrderId).then(res => {
+        this.orderInfos = res.data
+        this.openDialog()
+      })
+    },
+    /**
+     * 地图选点相关方法
+     */
+    // 打开对话框并初始化地图
+    openDialog() {
+      this.dialogVisible = true
+      let lng = this.orderInfos.broadbandAccount.longitude
+      let lat = this.orderInfos.broadbandAccount.latitude
+      this.$nextTick(() => {
+        if (!this.map) {
+          // 创建地图实例
+          this.map = new AMap.Map('map-container', {
+            zoom: 13,
+            center: [lng, lat], // 默认中心点
+            resizeEnable: true
+          })
+
+          // 创建点标记
+          this.marker = new AMap.Marker({
+            map: this.map,
+            position: new AMap.LngLat(lng, lat),
+            icon: '//a.amap.com/jsapi_demos/static/demo-center/icons/poi-marker-default.png',
+            offset: new AMap.Pixel(-13, -30)
+          })
+        }
+      })
+    },
+    // 关闭对话框时清除地图和信息
+    handleClose() {
+      this.dialogVisible = false
+      this.orderInfos = {
+        workOrder:{},
+        broadbandAccount:{},
+        businessPeople:{},
+        broadbandService:{}
+      }
     }
   },
   created() {
@@ -170,42 +108,38 @@ export default {
 
 <template>
   <div id="container">
-    <!--addForm-->
-    <!--<el-dialog title="新增节点" :visible.sync="addVisible">-->
-    <!--  <el-form ref="add" :rules="addRules" :model="addList">-->
-    <!--    <el-form-item label="节点名称" label-width="120px" prop="workOrderName">-->
-    <!--      <el-input v-model="addList.workOrderName" autocomplete="off"></el-input>-->
-    <!--    </el-form-item>-->
-    <!--    <el-form-item label="经度" label-width="120px" prop="longitude">-->
-    <!--      <el-input v-model.number="addList.longitude" autocomplete="off"></el-input>-->
-    <!--    </el-form-item>-->
-    <!--    <el-form-item label="纬度" label-width="120px" prop="latitude">-->
-    <!--      <el-input v-model.number="addList.latitude" autocomplete="off"></el-input>-->
-    <!--    </el-form-item>-->
-    <!--  </el-form>-->
-    <!--  <div slot="footer" class="dialog-footer">-->
-    <!--    <el-button @click="addVisible = false">取 消</el-button>-->
-    <!--    <el-button type="primary" @click="addWorkOrder(addList)">确 定</el-button>-->
-    <!--  </div>-->
-    <!--</el-dialog>-->
-    <!--updateForm-->
-    <!--<el-dialog title="修改节点" :visible.sync="updateVisible">-->
-    <!--  <el-form ref="update" :rules="updateRules" :model="updateList">-->
-    <!--    <el-form-item label="节点名" label-width="120px" prop="workOrderName">-->
-    <!--      <el-input v-model="updateList.workOrderName" autocomplete="off"></el-input>-->
-    <!--    </el-form-item>-->
-    <!--    <el-form-item label="经度" label-width="120px" prop="longitude">-->
-    <!--      <el-input v-model.number="updateList.longitude" autocomplete="off"></el-input>-->
-    <!--    </el-form-item>-->
-    <!--    <el-form-item label="纬度" label-width="120px" prop="latitude">-->
-    <!--      <el-input v-model.number="updateList.latitude" autocomplete="off"></el-input>-->
-    <!--    </el-form-item>-->
-    <!--  </el-form>-->
-    <!--  <div slot="footer" class="dialog-footer">-->
-    <!--    <el-button @click="updateVisible = false">取 消</el-button>-->
-    <!--    <el-button type="primary" @click="updateWorkOrder(updateList)">确 定</el-button>-->
-    <!--  </div>-->
-    <!--</el-dialog>-->
+    <!-- 地图选择对话框 -->
+    <el-dialog title="订单详情" :visible.sync="dialogVisible" width="40%" @close="handleClose">
+      <div style="margin-bottom: 10px">
+        <span style="font-weight: bold">订单ID：{{ orderInfos.workOrder.workOrderId }}</span>
+      </div>
+      <div style="margin-bottom: 10px">
+        <span>订单名：{{ orderInfos.workOrder.workOrderName }}</span>
+      </div>
+      <div style="margin-bottom: 10px">
+        <span>服务名：{{ orderInfos.broadbandService.broadbandServiceName }} / 服务类型：{{ orderInfos.broadbandService.typeName }}</span>
+      </div>
+      <div style="margin-bottom: 10px">
+        <span>负责人员姓名：{{orderInfos.businessPeople.name}}</span>
+      </div>
+      <div style="margin-bottom: 10px">
+        <span>负责人员电话：{{orderInfos.businessPeople.phonenumber}}</span>
+      </div>
+      <div style="margin-bottom: 10px">
+        <span>创建用户：{{orderInfos.broadbandAccount.phoneNumber}}</span>
+      </div>
+      <div style="margin-bottom: 10px">
+        <span>用户位置：（{{orderInfos.broadbandAccount.longitude}}，{{orderInfos.broadbandAccount.latitude}}）</span>
+      </div>
+      <!-- 地图容器 -->
+      <div id="map-container" style="height: 300px; width: 100%; border: 1px solid #ccc"></div>
+
+      <!-- 对话框底部的按钮 -->
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="handleClose">关 闭</el-button>
+      </span>
+    </el-dialog>
+
     <!--搜索-->
     <div class="search-box box">
       <el-form :inline="true" :model="searchList" class="demo-form-inline">
@@ -253,19 +187,9 @@ export default {
               width="150"
             ></el-table-column>
             <el-table-column
-              prop="businessPeopleId"
-              label="对接业务人员ID"
-              width="200"
-            ></el-table-column>
-            <el-table-column
               prop="businessPeopleName"
               label="对接业务人员"
               width="150"
-            ></el-table-column>
-            <el-table-column
-              prop="accountId"
-              label="创建用户ID"
-              width="200"
             ></el-table-column>
             <el-table-column
               prop="accountName"
@@ -287,11 +211,11 @@ export default {
               width="200"
             >
               <template slot-scope="scope">
-                <!--<el-button @click="showUpdate(scope.row)" type="primary" plain-->
-                <!--           size="small"-->
-                <!--&gt;-->
-                <!--  修改{{ name }}-->
-                <!--</el-button>-->
+                <el-button @click="checkInfo(scope.row)" type="primary" plain
+                           size="small"
+                >
+                  查看详情
+                </el-button>
                 <el-button @click="delWorkOrder(scope.row.workOrderId)" type="danger" plain
                            size="small"
                 >
