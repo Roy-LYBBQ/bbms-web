@@ -475,7 +475,7 @@ export default {
           </div>
           <div class="combo-info">
             <div class="info">期限：{{ comboList.value }} {{ comboList.unit === 0 ? '月' : '年' }}</div>
-            <div class="info">带宽：{{ comboList.bandwidth }}</div>
+            <div class="info">带宽：{{ comboList.bandwidth }} 兆</div>
             <div class="info">价格：{{ comboList.price }} / {{ comboList.unit === 0 ? '月' : '年' }}</div>
           </div>
         </div>

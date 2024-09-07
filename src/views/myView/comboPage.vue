@@ -55,7 +55,7 @@ export default {
             <el-option label="年" value="1"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="带宽">
+        <el-form-item label="带宽（兆）">
           <el-input v-model="searchList.bandwidth" placeholder="填写带宽"></el-input>
         </el-form-item>
         <el-form-item>
@@ -78,7 +78,7 @@ export default {
                 <div class="des">
                   <p class="name">套餐名称：{{ item.comboName}}</p>
                   <p class="p">期限：{{ item.value}} {{ item.unit === 0 ? '月' : '年'}}</p>
-                  <p class="p">带宽：{{ item.bandwidth}}</p>
+                  <p class="p">带宽：{{ item.bandwidth}} 兆</p>
                   <p class="p">价格：{{ item.price}} / {{ item.unit === 0 ? '月' : '年'}}</p>
                 </div>
               </div>

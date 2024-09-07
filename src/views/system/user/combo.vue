@@ -65,7 +65,7 @@ export default {
           }
         ],
         bandwidth: [
-          { required: true, message: '请填写带宽', trigger: 'blur' },
+          { required: true, message: '请填写带宽（兆）', trigger: 'blur' },
           {
             validator: (rule, value, callback) => {
               if (!Number.isFinite(value)) {
@@ -120,7 +120,7 @@ export default {
           }
         ],
         bandwidth: [
-          { required: true, message: '请填写带宽', trigger: 'blur' },
+          { required: true, message: '请填写带宽（兆）', trigger: 'blur' },
           {
             validator: (rule, value, callback) => {
               if (!Number.isFinite(value)) {
@@ -259,7 +259,7 @@ export default {
         <el-form-item label="价格" label-width="120px" prop="price">
           <el-input v-model="addList.price" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="带宽" label-width="120px" prop="bandwidth">
+        <el-form-item label="带宽（兆）" label-width="120px" prop="bandwidth">
           <el-input v-model.number="addList.bandwidth" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
@@ -286,7 +286,7 @@ export default {
         <el-form-item label="价格" label-width="120px" prop="price">
           <el-input v-model="updateList.price" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="带宽" label-width="120px" prop="bandwidth">
+        <el-form-item label="带宽（兆）" label-width="120px" prop="bandwidth">
           <el-input v-model.number="updateList.bandwidth" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
@@ -308,7 +308,7 @@ export default {
             <el-option label="年" value="1"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="带宽">
+        <el-form-item label="带宽（兆）">
           <el-input v-model="searchList.bandwidth" placeholder="填写带宽"></el-input>
         </el-form-item>
         <el-form-item>
@@ -332,7 +332,7 @@ export default {
                 <div class="des">
                   <p class="name">套餐名称：{{ item.comboName }}</p>
                   <p class="p">期限：{{ item.value }} {{ item.unit === 0 ? '月' : '年' }}</p>
-                  <p class="p">带宽：{{ item.bandwidth }}</p>
+                  <p class="p">带宽：{{ item.bandwidth }} 兆</p>
                   <p class="p">价格：{{ item.price }} / {{ item.unit === 0 ? '月' : '年' }}</p>
                 </div>
               </div>
