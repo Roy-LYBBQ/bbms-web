@@ -452,7 +452,6 @@ export default {
             <p>性别：<i v-if="user.sex === '0'" class="el-icon-male"></i><i v-if="user.sex === '1'"
                                                                            class="el-icon-female"
             ></i></p>
-            <p>加入日期：{{ user.createTime === null ? defaultInfo : user.createTime }}</p>
           </div>
           <!--修改个人信息-->
           <div class="setting">

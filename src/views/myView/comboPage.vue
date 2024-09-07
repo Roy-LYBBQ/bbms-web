@@ -46,8 +46,8 @@ export default {
   <div id="container">
     <div class="search-box box">
       <el-form :inline="true" :model="searchList" class="demo-form-inline">
-        <el-form-item label="服务名">
-          <el-input v-model="searchList.comboName" placeholder="填写服务名"></el-input>
+        <el-form-item label="套餐名">
+          <el-input v-model="searchList.comboName" placeholder="填写套餐名"></el-input>
         </el-form-item>
         <el-form-item label="周期">
           <el-select v-model="searchList.unit" placeholder="选择周期">

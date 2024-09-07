@@ -384,7 +384,7 @@ export default {
             <el-table-column
               fixed="right"
               label="操作"
-              width="300"
+              width="200"
             >
               <template slot-scope="scope">
                 <el-button @click="showUpdate(scope.row)" type="primary" plain
@@ -392,11 +392,11 @@ export default {
                 >
                   修改{{ name }}
                 </el-button>
-                <el-button @click="openDialog(scope.row)" type="success" plain
-                           size="small"
-                >
-                  修改定位
-                </el-button>
+                <!--<el-button @click="openDialog(scope.row)" type="success" plain-->
+                <!--           size="small"-->
+                <!--&gt;-->
+                <!--  修改定位-->
+                <!--</el-button>-->
                 <el-button @click="delAccount(scope.row.accountId)" type="danger" plain
                            size="small"
                 >

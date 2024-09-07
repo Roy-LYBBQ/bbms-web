@@ -159,7 +159,7 @@ export function adminServiceList({ broadbandServiceName, typeId, pageSize, pageN
 
 export function adminServiceUpdate({ broadbandServiceName, typeId, broadbandServiceId }) {
   return request({
-    url: `/broadband-service`,
+    url: `/broadband-service/update`,
     method: 'put',
     data: { broadbandServiceName, typeId, broadbandServiceId }
   })

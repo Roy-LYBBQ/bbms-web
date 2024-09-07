@@ -79,7 +79,7 @@ export default {
         this.updateList = {
           broadbandServiceId: item.broadbandServiceId,
           broadbandServiceName: item.broadbandServiceName,
-          typeId: this.serviceList.typeId
+          typeId: this.curTree.typeId
         }
       }
     },
