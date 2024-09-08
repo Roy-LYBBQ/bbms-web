@@ -57,7 +57,7 @@ export function adminAccountList({ phoneNumber, name, pageSize, pageNum }) {
 
 export function adminAccountUpdate({ accountId, amount, password, email, sex, status, latitude, longitude }) {
   return request({
-    url: `/account`,
+    url: `/account/update`,
     method: 'put',
     data: { accountId, amount, password, email, sex, status, latitude, longitude }
   })
@@ -234,7 +234,7 @@ export function adminWorkOrderDel(id) {
 
 export function adminWorkOrderInfoById(id) {
   return request({
-    url: `/workOrder//${id}`,
+    url: `/workOrder/${id}`,
     method: 'get'
   })
 }

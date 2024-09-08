@@ -45,7 +45,7 @@ export function accountGetById(id) {
 
 export function accountUpdate(data) {
   return myRequest({
-    url: `${BASE_URL}`,
+    url: `${BASE_URL}/update`,
     method: 'put',
     data
   })

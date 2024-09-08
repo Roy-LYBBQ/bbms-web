@@ -45,7 +45,6 @@
               <li>异步调用：线程池</li>
               <li>云服务：阿里云短信服务</li>
               <li>网关：Spring Cloud Gateway</li>
-              <li>云服务：阿里云短信服务</li>
               <li>容器管理：Docker</li>
               <li>...</li>
             </ul>
